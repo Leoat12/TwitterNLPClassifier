@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 public class GeoLocation {
+    //TODO: Reformar classe para ser utilizada tanto no modo manual quanto no modo automático
     public void getLocationFromGoogle(String location){
         GeoApiContext context = new GeoApiContext.Builder()
                 .apiKey("AIzaSyArf2JHHAbswIzCtb7aBpKzG0rRZmT4094")

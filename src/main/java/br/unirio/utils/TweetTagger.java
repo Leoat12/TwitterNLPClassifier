@@ -11,13 +11,16 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import br.unirio.models.Tweet;
+import br.unirio.models.*;
 
 public class TweetTagger {
     private CRFClassifier classifier;
 
+    //TODO: Reformar a classe de acordo com a estrutura que será feito no programa.
     public TweetTagger(String modelPath){
-        File model = new File(modelPath);
+        ToolProperties tprops = ToolProperties.getInstance();
+
+        File model = new File(tprops.getModelpath());
         Properties props = new Properties();
         props.setProperty("inputEncoding", "UTF-8");
         props.setProperty("outputEncoding", "UTF-8");
@@ -48,10 +51,10 @@ public class TweetTagger {
 
             for(Tweet tweet : tweets){
                 tweet.setTaggedText(classifier.classifyToString(TweetTreatment.treatTweet(tweet.getText()), "tsv", false));
-//                if(tweet.getTaggedText().contains("B-LOCATION") || tweet.getTaggedText().contains("I-LOCATION")
-//                        || tweet.getTaggedText().contains("B-EVENT") || tweet.getTaggedText().contains("I-EVENT")) {
+                if(tweet.getTaggedText().contains("B-LOCATION") || tweet.getTaggedText().contains("I-LOCATION")
+                        || tweet.getTaggedText().contains("B-EVENT") || tweet.getTaggedText().contains("I-EVENT")) {
                     taggedTweets.add(tweet);
-//                }
+                }
             }
 
             sw.stop();
@@ -72,13 +75,11 @@ public class TweetTagger {
             Tweet tweet = gson.fromJson(json, listType);
 
 
-            //ArrayList<Tweet> taggedTweets = new ArrayList<Tweet>();
-
-
             tweet.setTaggedText(classifier.classifyToString(TweetTreatment.treatTweet(tweet.getText()), "tsv", false));
 
-            if(tweet.getTaggedText().contains("B-LOCATION") || tweet.getTaggedText().contains("I-LOCATION")
-                    || tweet.getTaggedText().contains("B-EVENT") || tweet.getTaggedText().contains("I-EVENT")) {
+            if((tweet.getTaggedText().contains("B-LOCATION") || tweet.getTaggedText().contains("I-LOCATION"))
+                    && (tweet.getTaggedText().contains("B-EVENT") || tweet.getTaggedText().contains("I-EVENT"))) {
+                //TODO: Adicionar aqui a chammada dos métodos para banco de dados e geolicalização.
                 System.out.println(tweet.getTaggedText());
                 System.out.println("------------------------------------");
             }

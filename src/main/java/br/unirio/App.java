@@ -1,6 +1,7 @@
 package br.unirio;
 
-import br.unirio.utils.TweetReceiver;
+import br.unirio.utils.*;
+import java.util.ArrayList;
 
 /**
  * Hello world!
@@ -8,9 +9,11 @@ import br.unirio.utils.TweetReceiver;
  */
 public class App 
 {
+    //TODO: Instalar handler de parâmetros e menu
     public static void main( String[] args )
     {
         System.out.println("Application started.");
+
 //        GeoLocation gl = new GeoLocation();
 //        String locationTest = "Estação Jardim Oceânico";
 //        gl.getLocationFromGoogle(locationTest);
@@ -27,11 +30,11 @@ public class App
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-        try {
-            TweetReceiver.receiveTweet();
-        }
-        catch (Exception ex){
-            ex.printStackTrace();
-        }
-    }
+    //     try {
+    //         TweetReceiver.receiveTweet();
+    //     }
+    //     catch (Exception ex){
+    //         ex.printStackTrace();
+    //     }
+     }
 }
