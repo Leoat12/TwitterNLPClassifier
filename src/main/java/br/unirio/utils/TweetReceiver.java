@@ -2,11 +2,15 @@ package br.unirio.utils;
 
 import com.rabbitmq.client.*;
 
+import br.unirio.models.ToolProperties;
+
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.apache.commons.lang3.time.StopWatch;
 
 public class TweetReceiver {
-    private final static String QUEUE_NAME = "tweet";
+    private final static String QUEUE_NAME = ToolProperties.getInstance().getQueueName();
 
     public static void receiveTweet()
             throws java.io.IOException,
@@ -18,7 +22,15 @@ public class TweetReceiver {
         Channel channel = connection.createChannel();
 
         channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-        System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+        
+        final StopWatch sw = new StopWatch();
+        if(ToolProperties.getInstance().getConsumerTime() > 0){ 
+            sw.start();
+            System.out.print("[*] Receiving Messages.");
+        }
+        else{
+            System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+        }
 
         Consumer consumer = new DefaultConsumer(channel) {
             @Override
@@ -27,8 +39,16 @@ public class TweetReceiver {
                     throws IOException {
                 String message = new String(body, "UTF-8");
                 tagger.tagFromJSON(message);
+                if(verifyStop(sw.getTime(TimeUnit.HOURS))){
+                    this.getChannel().basicCancel(consumerTag);  
+                }
             }
         };
+        
         channel.basicConsume(QUEUE_NAME, true, consumer);
+    }
+
+    private static boolean verifyStop(long hour){
+        return (ToolProperties.getInstance().getConsumerTime() > 0 && hour >= ToolProperties.getInstance().getConsumerTime());
     }
 }

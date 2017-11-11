@@ -10,6 +10,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 
 import br.unirio.models.*;
 
@@ -34,6 +35,7 @@ public class TweetTagger {
         }
     }
 
+    //TODO: Ver o que fazer com este método. Colocar uma função manual afinal? 
     public ArrayList<Tweet> tagFromJSONFile(String filepath){
         FileInputStream fstream;
         System.out.println("Classifying...");
@@ -51,10 +53,10 @@ public class TweetTagger {
 
             for(Tweet tweet : tweets){
                 tweet.setTaggedText(classifier.classifyToString(TweetTreatment.treatTweet(tweet.getText()), "tsv", false));
-                if(tweet.getTaggedText().contains("B-LOCATION") || tweet.getTaggedText().contains("I-LOCATION")
-                        || tweet.getTaggedText().contains("B-EVENT") || tweet.getTaggedText().contains("I-EVENT")) {
+                 if(tweet.getTaggedText().contains("B-LOCATION") || tweet.getTaggedText().contains("I-LOCATION")
+                         || tweet.getTaggedText().contains("B-EVENT") || tweet.getTaggedText().contains("I-EVENT")) {
                     taggedTweets.add(tweet);
-                }
+                 }
             }
 
             sw.stop();
@@ -72,7 +74,7 @@ public class TweetTagger {
         try {
             Gson gson = new Gson();
             Type listType = new TypeToken<Tweet>(){}.getType();
-            Tweet tweet = gson.fromJson(json, listType);
+            final Tweet tweet = gson.fromJson(json, listType);
 
 
             tweet.setTaggedText(classifier.classifyToString(TweetTreatment.treatTweet(tweet.getText()), "tsv", false));
@@ -80,8 +82,11 @@ public class TweetTagger {
             if((tweet.getTaggedText().contains("B-LOCATION") || tweet.getTaggedText().contains("I-LOCATION"))
                     && (tweet.getTaggedText().contains("B-EVENT") || tweet.getTaggedText().contains("I-EVENT"))) {
                 //TODO: Adicionar aqui a chammada dos métodos para banco de dados e geolicalização.
-                System.out.println(tweet.getTaggedText());
-                System.out.println("------------------------------------");
+                CompletableFuture.runAsync(new Runnable(){
+                    public void run() {
+                        DBConnection.writeToDB(tweet);
+                    }
+                });
             }
 
             return tweet;
@@ -126,7 +131,7 @@ public class TweetTagger {
         }
     }
 
-    public void writeJsonTSV(ArrayList<Tweet> tweets){
+    public static void writeJsonTSV(ArrayList<Tweet> tweets){
         Gson gson = new Gson();
         String json = gson.toJson(tweets);
 
@@ -135,13 +140,13 @@ public class TweetTagger {
                 StopWatch sw = new StopWatch();
                 System.out.println("Writing files...");
                 sw.start();
-                File file = new File("resources/experimentos_finais_canal_oficial_1.json");
+                File file = new File("resources/experimentos_finais_3.json");
                 PrintWriter outputJson = new PrintWriter(new BufferedWriter(new FileWriter(file)));
                 outputJson.write(json);
                 outputJson.close();
 
 
-                File fileTxt = new File("resources/experimentos_finais_canal_oficial_1.tsv");
+                File fileTxt = new File("resources/experimentos_finais_3.tsv");
                 FileWriter output = new FileWriter(fileTxt, true);
                 for (Tweet tweet : tweets) {
                     tweet.setTaggedText(tweet.getTaggedText().concat("\n----------------\n"));

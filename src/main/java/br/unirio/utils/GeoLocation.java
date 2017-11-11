@@ -20,7 +20,7 @@ import java.util.List;
 
 public class GeoLocation {
     //TODO: Reformar classe para ser utilizada tanto no modo manual quanto no modo automático
-    public void getLocationFromGoogle(String location){
+    public static void getLocationFromGoogle(String location){
         GeoApiContext context = new GeoApiContext.Builder()
                 .apiKey("AIzaSyArf2JHHAbswIzCtb7aBpKzG0rRZmT4094")
                 .build();
@@ -41,7 +41,7 @@ public class GeoLocation {
         }
     }
 
-    public void getLocationFromNominatim(String location){
+    public static void getLocationFromNominatim(String location){
         DefaultHttpClient httpClient = new DefaultHttpClient();
         SimpleSearchQuery query = new SimpleSearchQuery(location);
         NominatimSearchRequest request = new NominatimSearchRequest();

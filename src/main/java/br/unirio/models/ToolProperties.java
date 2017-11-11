@@ -7,6 +7,9 @@ public class ToolProperties{
     private static ToolProperties instance = null;
     //TODO: Adicionar propriedades como community string do banco de dados e opção de GeoLocation
     private String modelpath;
+    private String queueName;
+    private int consumerTime;
+    private String dbConnectionString;
 
     protected ToolProperties(){};
 
