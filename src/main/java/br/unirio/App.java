@@ -14,6 +14,8 @@ public class App
     {
         System.out.println("Application started.");
 
+        DBConnection.writeToDB();
+
 //        GeoLocation gl = new GeoLocation();
 //        String locationTest = "Estação Jardim Oceânico";
 //        gl.getLocationFromGoogle(locationTest);
