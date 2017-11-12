@@ -16,15 +16,15 @@ public class App
         System.out.println("Application started.");
 
         if(args.length > 0){
-            if(args[0] == "-p"){
+            if(args[0].equals("-p")){
                 if(args.length > 1){
-                    ToolProperties props = ToolProperties.getInstance();
-                    props.setModelpath(args[1]);
-                    try {
-                        TweetReceiver.receiveTweet();
-                    }
-                    catch (Exception ex){
-                        ex.printStackTrace();
+                    if(ToolProperties.prepareProperties(args[1])){
+                        try {
+                            TweetReceiver.receiveTweet();
+                        }
+                        catch (Exception ex){
+                            ex.printStackTrace();
+                        }
                     }
                 }   
             }

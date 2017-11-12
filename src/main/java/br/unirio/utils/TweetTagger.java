@@ -77,17 +77,17 @@ public class TweetTagger {
             final Tweet tweet = gson.fromJson(json, listType);
 
 
-            tweet.setTaggedText(classifier.classifyToString(TweetTreatment.treatTweet(tweet.getText()), "tsv", false));
+            tweet.setTaggedText(classifier.classifyToString(TweetTreatment.treatTweet(tweet.getText()), "slashTags", false));
 
-            if((tweet.getTaggedText().contains("B-LOCATION") || tweet.getTaggedText().contains("I-LOCATION"))
-                    && (tweet.getTaggedText().contains("B-EVENT") || tweet.getTaggedText().contains("I-EVENT"))) {
+            // if((tweet.getTaggedText().contains("B-LOCATION") || tweet.getTaggedText().contains("I-LOCATION"))
+            //         && (tweet.getTaggedText().contains("B-EVENT") || tweet.getTaggedText().contains("I-EVENT"))) {
                 //TODO: Adicionar aqui a chammada dos métodos para banco de dados e geolicalização.
                 CompletableFuture.runAsync(new Runnable(){
                     public void run() {
                         DBConnection.writeToDB(tweet);
                     }
                 });
-            }
+            // }
 
             return tweet;
 

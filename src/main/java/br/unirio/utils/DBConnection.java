@@ -19,13 +19,19 @@ public class DBConnection{
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             //jdbc:mysql://devtestdb.ccj3d9slsftz.us-east-2.rds.amazonaws.com/tweetsdb?user=leoat12&password=2glo1gg4
             conn = DriverManager.getConnection(ToolProperties.getInstance().getDbConnectionString()); 
+        
                                                     
-            java.sql.Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * from tweet where id = 1");
+            String query = "INSERT INTO taggedtweet" + 
+                            "(tweetid, body)" + 
+                            "values (?, ?)";
+
+            PreparedStatement pStatement = conn.prepareStatement(query);
+            pStatement.setLong(1, tweet.getId());
+            pStatement.setString(2, tweet.getTaggedText());
             
-            while(rs.next()){
-                System.out.println(rs.getString("body"));
-            }
+            pStatement.execute();
+
+            conn.close();
         }
         catch (Exception ex){
             ex.printStackTrace();

@@ -26,7 +26,7 @@ public class TweetReceiver {
         final StopWatch sw = new StopWatch();
         if(ToolProperties.getInstance().getConsumerTime() > 0){ 
             sw.start();
-            System.out.print("[*] Receiving Messages.");
+            System.out.println("[*] Receiving Messages.");
         }
         else{
             System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
