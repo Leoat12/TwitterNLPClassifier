@@ -18,6 +18,10 @@ public class ToolProperties{
     private String queueName;
     private int consumerTime;
     private String dbConnectionString;
+    private boolean useGoogleAPI;
+    private String googleAPIKey;
+    private String nominatimEmail;
+
 
     protected ToolProperties(){};
 
@@ -40,10 +44,28 @@ public class ToolProperties{
 
             ToolProperties props = ToolProperties.getInstance();
 
-            props.setModelpath(auxProps.getModelpath());
-            props.setDbConnectionString(auxProps.getDbConnectionString());
+            if(!auxProps.modelpath.isEmpty() && !auxProps.dbConnectionString.isEmpty()){
+                props.setModelpath(auxProps.getModelpath());
+                props.setDbConnectionString(auxProps.getDbConnectionString());
+            }
+            else{
+                return false;
+            }
+            
             props.setConsumerTime(auxProps.getConsumerTime());
             props.setQueueName(auxProps.getQueueName());
+
+            if(auxProps.useGoogleAPI && !auxProps.googleAPIKey.isEmpty()){
+                props.setUseGoogleAPI(auxProps.useGoogleAPI);
+                props.setGoogleAPIKey(auxProps.getGoogleAPIKey());
+            }
+            else if(!auxProps.nominatimEmail.isEmpty()){
+                props.setUseGoogleAPI(auxProps.useGoogleAPI);
+                props.setNominatimEmail(auxProps.getNominatimEmail());
+            }
+            else{
+                return false;
+            }
 
             return true;
         }

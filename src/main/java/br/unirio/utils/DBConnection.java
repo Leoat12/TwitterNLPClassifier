@@ -1,9 +1,13 @@
 package br.unirio.utils;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Locale;
+
+import org.joda.time.DateTime;
 
 import br.unirio.models.*;
 
@@ -21,13 +25,20 @@ public class DBConnection{
             conn = DriverManager.getConnection(ToolProperties.getInstance().getDbConnectionString()); 
         
                                                     
-            String query = "INSERT INTO taggedtweet" + 
-                            "(tweetid, body)" + 
-                            "values (?, ?)";
+            String query = "INSERT INTO tweet" + 
+                            "(tweetid, createdbyid, body, createdat, latitude, longitude, taggedbody)" + 
+                            "values (?, ?, ?, ?, ?, ?, ?)";
 
             PreparedStatement pStatement = conn.prepareStatement(query);
             pStatement.setLong(1, tweet.getId());
-            pStatement.setString(2, tweet.getTaggedText());
+            pStatement.setLong(2, tweet.getCreatedById());
+            pStatement.setString(3, tweet.getText());
+            DateTime dt = DateTime.parse(tweet.getCreatedAt());
+            Date date = new Date(dt.getMillis());
+            pStatement.setDate(4, date);
+            pStatement.setDouble(5, tweet.getLatitude());
+            pStatement.setDouble(6, tweet.getLongitude());
+            pStatement.setString(7, tweet.getTaggedText());
             
             pStatement.execute();
 

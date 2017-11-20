@@ -20,12 +20,26 @@ public class App
                 if(args.length > 1){
                     if(ToolProperties.prepareProperties(args[1])){
                         try {
-                            TweetReceiver.receiveTweet();
+                            if(args.length > 3){
+                                if(args[2].equals("-f")){
+                                    TweetTagger tt = new TweetTagger(ToolProperties.getInstance().getModelpath());
+                                    if(tt.tagFromJSONFile(args[3])){
+                                        System.out.println("File succesfully tagged.");
+                                    }
+                                    else{
+                                        System.out.println("Error found, make sure the file exists.");
+                                    }
+                                }
+                            }
+                            else{
+                                TweetReceiver.receiveTweet();
+                            }
                         }
                         catch (Exception ex){
                             ex.printStackTrace();
                         }
                     }
+
                 }   
             }
         }

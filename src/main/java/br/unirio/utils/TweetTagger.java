@@ -2,6 +2,8 @@ package br.unirio.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.google.maps.model.LatLng;
+
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.sequences.SeqClassifierFlags;
 import org.apache.commons.lang3.time.StopWatch;
@@ -17,7 +19,6 @@ import br.unirio.models.*;
 public class TweetTagger {
     private CRFClassifier classifier;
 
-    //TODO: Reformar a classe de acordo com a estrutura que será feito no programa.
     public TweetTagger(String modelPath){
         ToolProperties tprops = ToolProperties.getInstance();
 
@@ -35,8 +36,7 @@ public class TweetTagger {
         }
     }
 
-    //TODO: Ver o que fazer com este método. Colocar uma função manual afinal? 
-    public ArrayList<Tweet> tagFromJSONFile(String filepath){
+    public boolean tagFromJSONFile(String filepath){
         FileInputStream fstream;
         System.out.println("Classifying...");
         StopWatch sw = new StopWatch();
@@ -49,23 +49,34 @@ public class TweetTagger {
             Type listType = new TypeToken<ArrayList<Tweet>>(){}.getType();
             ArrayList<Tweet> tweets = gson.fromJson(reader, listType);
 
-            ArrayList<Tweet> taggedTweets = new ArrayList<Tweet>();
 
-            for(Tweet tweet : tweets){
+            for(final Tweet tweet : tweets){
                 tweet.setTaggedText(classifier.classifyToString(TweetTreatment.treatTweet(tweet.getText()), "tsv", false));
-                 if(tweet.getTaggedText().contains("B-LOCATION") || tweet.getTaggedText().contains("I-LOCATION")
-                         || tweet.getTaggedText().contains("B-EVENT") || tweet.getTaggedText().contains("I-EVENT")) {
-                    taggedTweets.add(tweet);
+                 if((tweet.getTaggedText().contains("B-LOCATION") || tweet.getTaggedText().contains("I-LOCATION"))
+                        && (tweet.getTaggedText().contains("B-EVENT") || tweet.getTaggedText().contains("I-EVENT"))) {
+                    ArrayList<String> locations = TweetTreatment.extractLocation(tweet.getTaggedText());
+                    for (String location : locations) {
+                        LatLng locationCord = ToolProperties.getInstance().isUseGoogleAPI() ? GeoLocation.getLocationFromGoogle(location) : GeoLocation.getLocationFromNominatim(location);
+                        if(locationCord != null){
+                            tweet.setLatitude(locationCord.lat);
+                            tweet.setLongitude(locationCord.lng);
+                        }
+                    }                 
+                    CompletableFuture.runAsync(new Runnable(){
+                        public void run() {
+                            DBConnection.writeToDB(tweet);
+                        }
+                    });
                  }
             }
 
             sw.stop();
             System.out.println("Classification done. Time: " + sw.toString());
-            return taggedTweets;
+            return true;
 
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return false;
         }
     }
 
@@ -77,17 +88,27 @@ public class TweetTagger {
             final Tweet tweet = gson.fromJson(json, listType);
 
 
-            tweet.setTaggedText(classifier.classifyToString(TweetTreatment.treatTweet(tweet.getText()), "slashTags", false));
+            tweet.setTaggedText(classifier.classifyToString(TweetTreatment.treatTweet(tweet.getText()), "tsv", false));
 
-            // if((tweet.getTaggedText().contains("B-LOCATION") || tweet.getTaggedText().contains("I-LOCATION"))
-            //         && (tweet.getTaggedText().contains("B-EVENT") || tweet.getTaggedText().contains("I-EVENT"))) {
-                //TODO: Adicionar aqui a chammada dos métodos para banco de dados e geolicalização.
+             if((tweet.getTaggedText().contains("B-LOCATION") || tweet.getTaggedText().contains("I-LOCATION"))
+                     && (tweet.getTaggedText().contains("B-EVENT") || tweet.getTaggedText().contains("I-EVENT"))) {
+                ArrayList<String> locations = TweetTreatment.extractLocation(tweet.getTaggedText());
+                System.out.println("----------");
+                System.out.println("Original: " + String.join(",", locations));
+                for (String location : locations) {
+                    LatLng locationCord = ToolProperties.getInstance().isUseGoogleAPI() ? GeoLocation.getLocationFromGoogle(location) : GeoLocation.getLocationFromNominatim(location);
+                    if(locationCord != null){
+                        tweet.setLatitude(locationCord.lat);
+                        tweet.setLongitude(locationCord.lng);
+                    }
+                }
+                System.out.println("----------");
                 CompletableFuture.runAsync(new Runnable(){
                     public void run() {
                         DBConnection.writeToDB(tweet);
                     }
                 });
-            // }
+             }
 
             return tweet;
 
