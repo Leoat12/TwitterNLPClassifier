@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.Locale;
 
 import org.joda.time.DateTime;
 
@@ -20,7 +18,6 @@ public class DBConnection{
     */ 
     public static void writeToDB(Tweet tweet){
         try{
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
             //jdbc:mysql://devtestdb.ccj3d9slsftz.us-east-2.rds.amazonaws.com/tweetsdb?user=leoat12&password=2glo1gg4
             conn = DriverManager.getConnection(ToolProperties.getInstance().getDbConnectionString()); 
         
@@ -28,7 +25,7 @@ public class DBConnection{
             String query = "INSERT INTO tweet" + 
                             "(tweetid, createdbyid, body, createdat, latitude, longitude, taggedbody)" + 
                             "values (?, ?, ?, ?, ?, ?, ?)";
-
+            
             PreparedStatement pStatement = conn.prepareStatement(query);
             pStatement.setLong(1, tweet.getId());
             pStatement.setLong(2, tweet.getCreatedById());

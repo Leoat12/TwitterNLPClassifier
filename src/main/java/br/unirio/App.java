@@ -43,10 +43,5 @@ public class App
                 }   
             }
         }
-//        GeoLocation gl = new GeoLocation();
-//        String locationTest = "Estação Jardim Oceânico";
-//        gl.getLocationFromGoogle(locationTest);
-//        gl.getLocationFromNominatim(locationTest);
-        
      }
 }

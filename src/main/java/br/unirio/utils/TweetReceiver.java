@@ -43,6 +43,11 @@ public class TweetReceiver {
                     this.getChannel().basicCancel(consumerTag);  
                 }
             }
+            @Override
+            public void handleCancelOk(String consumerTag) {
+                super.handleCancelOk(consumerTag);
+                System.exit(0);
+            }
         };
         
         channel.basicConsume(QUEUE_NAME, true, consumer);
