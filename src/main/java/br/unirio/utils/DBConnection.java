@@ -18,7 +18,6 @@ public class DBConnection{
     */ 
     public static void writeToDB(Tweet tweet){
         try{
-            //jdbc:mysql://devtestdb.ccj3d9slsftz.us-east-2.rds.amazonaws.com/tweetsdb?user=leoat12&password=2glo1gg4
             conn = DriverManager.getConnection(ToolProperties.getInstance().getDbConnectionString()); 
         
                                                     
